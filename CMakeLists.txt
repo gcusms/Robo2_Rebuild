@@ -16,11 +16,7 @@ include_directories(${PROJECT_SOURCE_DIR}/infer)
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/wolfVisionR2)
 
-include_directories(
-    #OpenVINO推理引擎的头文件
-    /home/sms/intel/openvino_2021/deployment_tools/inference_engine/include/
-    /home/sms/intel/openvino_2021/deployment_tools/ngraph/include/
-)
+
 #查找必要的依赖包
 #OpenCV
 find_package(OpenCV REQUIRED)
@@ -29,6 +25,11 @@ target_link_libraries(${PROJECT_NAME}
                         PRIVATE
                         ${OpenCV_LIBS})
 
+include_directories(
+    #OpenVINO推理引擎的头文件
+    /home/sms/intel/openvino_2021/deployment_tools/inference_engine/include/
+    /home/sms/intel/openvino_2021/deployment_tools/ngraph/include/
+    )
 set(InferenceEngine_DIR "/home/sms/intel/openvino_2021/deployment_tools/inference_engine/share")
 find_package(InferenceEngine)
 set(ngraph_DIR "/home/sms/intel/openvino_2021/deployment_tools/ngraph")

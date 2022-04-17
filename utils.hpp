@@ -66,6 +66,14 @@ struct RoboCatchCmdUartBuff {
   uint8_t E_flag = 'E';
 } __attribute__((packed));
 
+struct RoboTypeCmdUartBuff {
+  uint8_t S_flag = 'S';
+  uint8_t cmd_type = RETURN_CUBE_STATE;
+  int cube_type = 0;
+  uint8_t E_flag = 'E';
+} __attribute__((packed));
+
+
 // send R2 cube status
 // 0x01 white 0x02 yellow 
 // cube_type: 0x01 - 0x05

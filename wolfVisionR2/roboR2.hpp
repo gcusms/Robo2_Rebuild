@@ -18,6 +18,8 @@ using namespace cv;
 using namespace rs2;
 
 
+static int cube_middle_detect_times{0};
+static int cude_front_detect_times{0};
 
 constexpr int cube_1_min_area = 15000;
 constexpr int cube_1_max_area = 20000;
@@ -33,6 +35,13 @@ constexpr int cube_4_max_area = 75500;
 
 constexpr int cube_5_min_area = 79000;
 constexpr int cube_5_max_area = 90000;
+
+constexpr float cube_target_yaw_angle_offset = -2.f;
+constexpr float cube_target_distance_offset = 130.5f;
+constexpr float cube_target_yaw_angle_errors_range = 2.0f;
+constexpr float cube_target_distance_errors_range = 2.5f;
+constexpr int cube_targeted_detect_flag_times = 5;
+constexpr int cube_target_echo_uart_cmd_sleep_time = 20000;
 
 class RobotR2{
 public:
@@ -63,7 +72,6 @@ private:
     float _nms_area_threshold = 0.5f;  // nms最小重叠面积阈值
 private:    
     pipeline pipe;               // 创建数据管道
-    vector<Detector::Object> detected_objects;
 };
 
 
@@ -72,7 +80,6 @@ RobotR2::RobotR2(){
  this->detector = new Detector(_xml_path,_bin_path,_cof_threshold,_nms_area_threshold);
  serial_robot_ = std::make_unique<RoboSerial>("/dev/ros_tty", 115200);
  streamer_ = std::make_unique<RoboStreamer>();
-
 }
 
 void RobotR2::cubeDetect()
@@ -83,16 +90,9 @@ void RobotR2::cubeDetect()
  pipeline_profile profile = pipe.start();
  cv::Point2f pnp_angle;
 
- constexpr float cube_target_yaw_angle_offset = -2.f;
- constexpr float cube_target_distance_offset = 13.5f;
- constexpr float cube_target_yaw_angle_errors_range = 2.0f;
- constexpr float cube_target_distance_errors_range = 2.5f;
- constexpr int cube_targeted_detect_flag_times = 5;
- constexpr int cube_target_echo_uart_cmd_sleep_time = 20000;
  while (true)try
  {
-  static int cube_middle_detect_times{0};
-  static int cude_front_detect_times{0};
+
   // 堵塞程序直到新的一帧捕获
   frameset frameset = pipe.wait_for_frames();
 
@@ -106,8 +106,8 @@ void RobotR2::cubeDetect()
 
   src_img = cv::Mat(Size(color_width, color_height), CV_8UC3,
              (void *)video_src.get_data(), Mat::AUTO_STEP);
-
   vector<Detector::Object> detected_objects;
+
   auto t = (double)cv::getTickCount();
   if(!detector->process_frame(src_img, detected_objects))
   {
@@ -123,18 +123,6 @@ void RobotR2::cubeDetect()
   // sor the cube_vector
   std::sort(detected_objects.begin(), detected_objects.end());
   cv::Rect temp_rect_ = detected_objects.at(0).rect;
-  cv::rectangle(src_img,
-            temp_rect_,
-            cv::Scalar(0, 0, 0),
-            2,
-            LINE_8,
-          0); 
-cv::putText(src_img,detected_objects.at(0).name,
-            Point(temp_rect_.x + 20,temp_rect_.y - 10),cv::FONT_HERSHEY_COMPLEX,
-                0.7,
-                cv::Scalar(100,100,255),
-                0.5,
-              cv::LINE_4);
   switch (robo_inf.catch_cube_mode_status.load())
   {
 /****************angle*********************************/
@@ -173,7 +161,8 @@ cv::putText(src_img,detected_objects.at(0).name,
         cube_middle_detect_times = 0;
         robo_inf.catch_cube_mode_status.store(CatchMode::go);
       }
-      break;}
+      break;
+    }
 
 /***************direct********************************/
     case CatchMode::go:
@@ -359,12 +348,27 @@ cv::putText(src_img,detected_objects.at(0).name,
     }
     default:
       break;
-  }    
+  }
+
+  cv::rectangle(src_img,
+            temp_rect_,
+            cv::Scalar(0, 0, 0),
+            2,
+            LINE_8,
+          0); 
+  cv::putText(src_img,detected_objects.at(0).name,
+              Point(temp_rect_.x + 20,temp_rect_.y - 10),cv::FONT_HERSHEY_COMPLEX,
+                  0.7,
+                  cv::Scalar(100,100,255),
+                  0.5,
+                cv::LINE_4);
+
   cv::rectangle(src_img, temp_rect_, cv::Scalar(0, 150, 255), 2);
-    cv::putText(src_img, 
-                std::to_string(detected_objects.at(0).id),
-                cv::Point(temp_rect_.x, temp_rect_.y - 1),
-                cv::FONT_HERSHEY_DUPLEX, 1, cv::Scalar(0, 150, 255), 1);
+  cv::putText(src_img, 
+              std::to_string(detected_objects.at(0).id),
+              cv::Point(temp_rect_.x, temp_rect_.y - 1),
+              cv::FONT_HERSHEY_DUPLEX, 1, cv::Scalar(0, 150, 255), 1);
+
 #ifndef RELEASE
       if (!src_img.empty()) {
         std::vector<uchar> buff_bgr;
@@ -373,6 +377,7 @@ cv::putText(src_img,detected_objects.at(0).name,
                               std::string(buff_bgr.begin(), buff_bgr.end()));
       }
 #endif
+
 // fps caculate
   t = ((double)cv::getTickCount() - t) / cv::getTickFrequency() ;
   auto fps = 1.0 / t;

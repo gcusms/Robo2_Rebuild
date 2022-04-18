@@ -62,6 +62,7 @@ private:
 
 private:
     Detector *detector;          // 对象检测
+    std::vector<int> params = {cv::IMWRITE_JPEG_QUALITY, 90};
 
 private:
     std::string _input_name;  
@@ -372,7 +373,7 @@ void RobotR2::cubeDetect()
 #ifndef RELEASE
       if (!src_img.empty()) {
         std::vector<uchar> buff_bgr;
-        cv::imencode(".jpg", src_img, buff_bgr);
+        cv::imencode(".jpg", src_img, buff_bgr,params);
         streamer_->publish("/tpcm",
                               std::string(buff_bgr.begin(), buff_bgr.end()));
       }

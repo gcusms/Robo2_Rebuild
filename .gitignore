@@ -1,0 +1,24 @@
+Robocon_2022_CV_R2
+# build
+build
+.vscode
+model
+# Compiled Static libraries
+*.a
+*.lib
+*.so
+
+
+#Camera
+.mvdat
+.config
+
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# other
+.svn

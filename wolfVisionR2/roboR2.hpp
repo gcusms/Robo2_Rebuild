@@ -344,7 +344,6 @@ void RobotR2::cubeDetect()
         }
       }
       robo_inf.catch_cube_mode_status.store(CatchMode::off);
-
       break;
     }
     default:
@@ -378,7 +377,6 @@ void RobotR2::cubeDetect()
                               std::string(buff_bgr.begin(), buff_bgr.end()));
       }
 #endif
-
 // fps caculate
   t = ((double)cv::getTickCount() - t) / cv::getTickFrequency() ;
   auto fps = 1.0 / t;
@@ -392,7 +390,6 @@ void RobotR2::cubeDetect()
  
  
 }
-
 
 void RobotR2::uartRead()
 {
@@ -428,8 +425,7 @@ void RobotR2::spin() {
  }
  if(!uart_thread.joinable()) {
      uart_thread.detach();
- }
-    
+ } 
 }
 void RobotR2::stop()
 {

@@ -1,7 +1,8 @@
-#pragma once
 #include <atomic>
-#include <opencv4/opencv2/highgui/highgui.hpp>
+#include "opencv2/imgproc/imgproc.hpp"
 
+#include "fmt/color.h"
+#include "fmt/core.h"
 
 #define AUTO_MODE 0x01
 #define MANUAL_MODE 0x02
@@ -23,8 +24,8 @@
 #define GO_SIGN           0X02
 #define CATCH_SIGN        0X03
 #define RETURN_CUBE_STATE 0X04
+#define SUSTAIN_SENDING  0X05
 
-float distance_set = 0.0f;
 
 enum CatchMode {
   off = 0,
@@ -37,7 +38,9 @@ enum CatchMode {
 struct RoboInf {
   std::atomic<uint8_t> mode {0x00};
   std::atomic<CatchMode> catch_cube_mode_status {CatchMode::off};
+  std::atomic<uint8_t> color_self {0x00};  // 己方机器人颜色
 };
+
 
 // send R2 spin command
 struct RoboSpinCmdUartBuff {
@@ -66,6 +69,13 @@ struct RoboCatchCmdUartBuff {
   uint8_t E_flag = 'E';
 } __attribute__((packed));
 
+struct Cathbuff_reset {
+  uint8_t S_flag = 'S';
+  uint8_t cmd_type = CATCH_SIGN;
+  uint8_t cube_id = 0x00;
+  uint8_t E_flag = 'E';
+} __attribute__((packed));
+
 struct RoboTypeCmdUartBuff {
   uint8_t S_flag = 'S';
   uint8_t cmd_type = RETURN_CUBE_STATE;
@@ -91,3 +101,78 @@ struct RoboInfUartBuff {
 } __attribute__((packed));
 
 
+/*********NEW_SEND*********/
+
+struct RoboCmd {
+  std::atomic<float> distance;
+  std::atomic<float> yaw_angle;
+  std::atomic<uint8_t> cube_color;
+  std::atomic<uint8_t> cube_state;
+};
+/**
+ * COLOR RED 0X01 BLUE 0X02
+ * STATE up 0x01 erect 0x02 down 0x03
+ * distance
+ * yaw_angle
+*/
+struct RoboInfNewUartBUff {
+  uint8_t S_flag = (unsigned)'S';
+  uint8_t cmd_type = SUSTAIN_SENDING;
+  uint8_t cube_color = 0x00;
+  uint8_t cube_state = 0x00;
+  float distance = 0.f;
+  float yaw_angle = 0.f;
+  uint8_t E_flag = (unsigned)'E';
+} __attribute__((packed));
+
+
+
+namespace drawspace {
+
+  inline void drawRectangle_black(cv::Mat &input_img, cv::Rect &rect) {
+    cv::rectangle(
+              input_img,
+              rect,
+              cv::Scalar(0, 0, 0),
+              2,
+              cv::LINE_8,
+              0); 
+  }
+
+  inline void drawRectangle_pink(cv::Mat &input_img_, cv::Rect &rect_) {
+    cv::rectangle(
+              input_img_,
+              rect_,
+              cv::Scalar(255, 0, 255),
+              2,
+              cv::LINE_8,
+              0); 
+  }
+
+  inline void drawLabelRect(cv::Mat &input_img_temp,std::string &msg_,cv::Rect &__rect) {
+    cv::putText(
+      input_img_temp,
+      msg_,
+      cv::Point(__rect.x + 20,__rect.y - 10),
+      cv::FONT_HERSHEY_COMPLEX,
+      0.7,
+      cv::Scalar(100,100,255),
+      0.5,
+      cv::LINE_4
+      );
+  }
+
+  inline void drawEntitle(cv::Mat &input_img,std::string msg) {
+    cv::putText(
+      input_img,
+      msg,
+      cv::Point(100,100),
+      cv::FONT_HERSHEY_COMPLEX,
+      0.7,
+      cv::Scalar(100,100,255),
+      0.5,
+      cv::LINE_4
+      );
+  }
+
+}

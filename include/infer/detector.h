@@ -15,7 +15,7 @@ using namespace InferenceEngine;
 class Detector
 {
 public:
-    typedef struct Object{
+    struct Object{
         float prob;
         std::string name;
         cv::Rect rect;

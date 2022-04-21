@@ -1,10 +1,5 @@
-#pragma once
 #include "serial/serial.h"
 #include "utils.hpp"
-#include "fmt/color.h"
-
-auto idntifier_green = fmt::format(fg(fmt::color::green) | fmt::emphasis::bold, "serial");
-auto idntifier_red   = fmt::format(fg(fmt::color::red)   | fmt::emphasis::bold, "serial");
 
 class RoboSerial : public serial::Serial {
  public:
@@ -13,11 +8,11 @@ class RoboSerial : public serial::Serial {
     this->setPort(port);
     this->setBaudrate(baud);
     this->setTimeout(timeout);
-    try {
+    try { 
       this->open();
-      fmt::print("[{}] Serial init successed.\n", idntifier_green);
+      fmt::print(fg(fmt::color::green) | fmt::emphasis::bold,"Serial init successed.\n") ;
     } catch(const std::exception& e) {
-      fmt::print("[{}] Serial init failed, {}.\n", idntifier_red, e.what());
+      fmt::print(fg(fmt::color::red) | fmt::emphasis::bold,"Serial init failed, {}.\n", e.what());
     }
   }
 
@@ -38,8 +33,18 @@ class RoboSerial : public serial::Serial {
       if (robo_inf.catch_cube_mode_status.load() == CatchMode::off)
         robo_inf.catch_cube_mode_status.store(CatchMode::catch_cube);
     }else if (uart_buff_struct.mode == DETECT_MODE) {
-        robo_inf.catch_cube_mode_status.store(CatchMode::detect_mode);
+        robo_inf.catch_cube_mode_status.store(CatchMode::catch_cube);
     }
   }
- private:
+
+  // 串口发送
+  void serialSendInf(RoboCmd &robo_inf_send_temp)
+  {
+    RoboInfNewUartBUff robo_send_inf;
+    robo_send_inf.cube_color = robo_inf_send_temp.cube_color.load();
+    robo_send_inf.cube_state = robo_inf_send_temp.cube_state.load();
+    robo_send_inf.distance = robo_inf_send_temp.distance.load();
+    robo_send_inf.yaw_angle = robo_inf_send_temp.yaw_angle.load();
+    this->write((uint8_t*)&robo_send_inf,sizeof(robo_send_inf));
+  }
 };

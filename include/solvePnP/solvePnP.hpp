@@ -4,11 +4,10 @@
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <iostream>
-
+#include "serial.hpp"
 namespace solvepnp
 {
-    auto idntifier_green = fmt::format(fg(fmt::color::green), "solvePnP");
-    auto idntifier_red = fmt::format(fg(fmt::color::red), "solvePnP");
+
 
     class PnP
     {

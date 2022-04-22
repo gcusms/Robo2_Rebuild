@@ -33,7 +33,8 @@ public:
  ~WolfRobot_R2();
  void serialReceive();  // receive the serial messange
  void serialSend();     // send message for the serial 
- void detectionObject(pipeline &pipe, pipeline_profile &profile);      // detect the object
+ void detectionObject(pipeline &pipe, pipeline_profile &profile);  // detect the object
+ void imageStream(const std::shared_ptr<MJPEGStreamer> &streamer_ptr);                                               // streamer   
 private:
  bool node_judge_ = false;
  bool detect_judge_ = false;
@@ -48,6 +49,8 @@ private:
  Detector *detector = nullptr ;  // 检测对象声明
 
  vector<Detector::Object> detected_objects;  // 检测结果存储写入对象声明
+
+ std::vector<int> params = {cv::IMWRITE_JPEG_QUALITY, 90};
 
 public:
  const bool nodeJudgeReturn(){return this->node_judge_;}

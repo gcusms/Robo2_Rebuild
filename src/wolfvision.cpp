@@ -45,7 +45,15 @@ void WolfRobot_R2::serialSend()
 }
 
 
+void WolfRobot_R2::imageStream(const std::shared_ptr<MJPEGStreamer> &streamer_ptr)
+{
+  if(!this->src_img.empty()) {
+    std::vector<uchar> buff_bgr;
+    cv::imencode(".jpg", this->src_img, buff_bgr, params);
+    streamer_ptr->publish("/bgr", std::string(buff_bgr.begin(), buff_bgr.end()));
+  }
 
+}
 void WolfRobot_R2::detectionObject(pipeline &pipe, pipeline_profile &profile) {
    // 检测对象声明
   string xml_path = "../model/best.xml";
@@ -54,6 +62,7 @@ void WolfRobot_R2::detectionObject(pipeline &pipe, pipeline_profile &profile) {
   float conf_frame = 0.45;
   this->detector = new Detector(xml_path,bin_path,conf_detect_, conf_frame);
   profile = pipe.start();
+  auto streamer_ptr = std::make_shared<nadjieb::MJPEGStreamer>();
   while (!this->detect_judge_)
   {   
     // 堵塞程序直到新的一帧捕获
@@ -87,7 +96,7 @@ void WolfRobot_R2::detectionObject(pipeline &pipe, pipeline_profile &profile) {
     {
       drawEntitle(this->src_img,"spin");
       float error_angle_temp = std::abs(temp_rect.x + temp_rect.width*0.5);
-      fmt::print("error_angle_temp:{}",detect_distance);
+      fmt::print("error_angle_temp:{}",error_angle_temp);
       if( error_angle_temp < this->detect_parameters.error_angle) {
         this->detect_parameters.cube_middle_detect_times++;
         if(this->detect_parameters.cube_middle_detect_times > 3) {
@@ -154,6 +163,7 @@ void WolfRobot_R2::detectionObject(pipeline &pipe, pipeline_profile &profile) {
       fmt::print("{}\n",this->robo_inf.catch_cube_mode_status.load());
       break;
     }
+    imageStream(std::ref(streamer_ptr));
   }
 }
 

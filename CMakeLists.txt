@@ -38,7 +38,7 @@ set(ngraph_INCLUDE_DIRS "/home/sms/intel/openvino_2021/deployment_tools/ngraph/i
 
 # 编译detector.so black_box
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/infer)
-add_library (detector SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/infer/detector.cpp)
+add_library (detector STATIC ${CMAKE_CURRENT_SOURCE_DIR}/src/infer/detector.cpp)
 target_include_directories(detector
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${OpenCV_INCLUDE_DIR}
@@ -86,7 +86,7 @@ include_directories(devices/serial)
 include_directories(devices/serial/src)
 
 add_library(serial 
-        SHARED
+        STATIC
         ${serial_SRCS})
 target_link_libraries(${PROJECT_NAME} 
                     PRIVATE

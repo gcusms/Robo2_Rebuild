@@ -87,6 +87,7 @@ void WolfRobot_R2::detectionObject(pipeline &pipe, pipeline_profile &profile) {
     {
       drawEntitle(this->src_img,"spin");
       float error_angle_temp = std::abs(temp_rect.x + temp_rect.width*0.5);
+      fmt::print("error_angle_temp:{}",detect_distance);
       if( error_angle_temp < this->detect_parameters.error_angle) {
         this->detect_parameters.cube_middle_detect_times++;
         if(this->detect_parameters.cube_middle_detect_times > 3) {
@@ -114,6 +115,7 @@ void WolfRobot_R2::detectionObject(pipeline &pipe, pipeline_profile &profile) {
     {
       drawEntitle(this->src_img,"go");
       float detect_distance = std::abs((temp_rect.y + temp_rect.height*0.5) - this->src_img.rows);
+      fmt::print("distance:{}",detect_distance);
       if(detect_distance < this->detect_parameters.error_distance) {
         this->detect_parameters.cude_front_detect_times ++;
         if(detect_parameters.cude_front_detect_times > 3) {

@@ -21,18 +21,18 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${realsense2_LIBRARY})
 #("----------------------OPENVINO----------------------")
 include_directories(
     #OpenVINO推理引擎的头文件
-    /home/sms/intel/openvino_2021/deployment_tools/inference_engine/include/
-    /home/sms/intel/openvino_2021/deployment_tools/ngraph/include/
+    ~/intel/openvino_2021/deployment_tools/inference_engine/include/
+    ~/intel/openvino_2021/deployment_tools/ngraph/include/
 )
 
 #查找必要的依赖包
 find_package(OpenCV REQUIRED)
-set(InferenceEngine_DIR "/home/sms/intel/openvino_2021/deployment_tools/inference_engine/share")
+set(InferenceEngine_DIR "~/intel/openvino_2021/deployment_tools/inference_engine/share")
 find_package(InferenceEngine)
-set(ngraph_DIR "/home/sms/intel/openvino_2021/deployment_tools/ngraph")
+set(ngraph_DIR "~/intel/openvino_2021/deployment_tools/ngraph")
 # find_package(ngraph REQUIRED)
-set(ngraph_LIBRARIES "/home/sms/intel/openvino_2021/deployment_tools/ngraph/lib/libngraph.so")
-set(ngraph_INCLUDE_DIRS "/home/sms/intel/openvino_2021/deployment_tools/ngraph/include/")
+set(ngraph_LIBRARIES "~/intel/openvino_2021/deployment_tools/ngraph/lib/libngraph.so")
+set(ngraph_INCLUDE_DIRS "~/intel/openvino_2021/deployment_tools/ngraph/include/")
 
 
 
